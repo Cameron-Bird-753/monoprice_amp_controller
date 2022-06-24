@@ -51,13 +51,29 @@ const queue = [];
  */
 router.get('/:zoneId', (req,res) =>
 {
+    /**
+     * [
+    "?11",
+    "#>1100010000111109100601\r"
+     
+    
+    [
+    "?10",
+    "#>1100010000111109100601\r",
+    "#>1200000000170405100601\r",
+    "#>1300000000280710100601\r",
+    "#>1400000000200707100601\r",
+    "#>1500000000200707100100\r",
+    "#>1600000000250707100500\r"
+]
+    
+    
+    */
 
-
-    sendSync(port, '?11\r').then((data) => {
+    sendSync(port, '?10\r').then((data) => { //HARD CODED QUERY
         setTimeout(()=>{ 
             console.log(queue.length);
-            if()
-            res.json(queue);},80);
+            res.json(queue);},200);
         // console.log(data);
        
     });
