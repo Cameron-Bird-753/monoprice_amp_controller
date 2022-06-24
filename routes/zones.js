@@ -10,17 +10,24 @@
 const express = require('express');
 const router = express.Router();
 const controlActions = require('../models/Monoprice.js');
-const { SerialPort, ReadlineParser } = require('serialport')
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline')
+
+
 
 
 //Serial Ports 
 const port = new SerialPort({
-    path: 'COM7',
-    baudRate: 57600,
+    path: 'COM3',
+    baudRate: 9600,
+    // parser: new ReadlineParser('\n')
   });
+const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+// //Callbacks
+// const queue = [];
+// parser.on('data', readSerialData);
 
-
-// const {port} = require('../app.js');
+const queue = [];
 
 
 
@@ -44,9 +51,56 @@ const port = new SerialPort({
  */
 router.get('/:zoneId', (req,res) =>
 {
-    res.send('xxaabbccddeeffgghhiijj');
+
+
+    sendSync(port, '?11\r').then((data) => {
+        setTimeout(()=>{ 
+            console.log(queue.length);
+            if()
+            res.json(queue);},80);
+        // console.log(data);
+       
+    });
+
+
+
+
+
+
+
+    // port.write('?11\r','ascii');
+    // res.send('xxaabbccddeeffgghhiijj');
+    
+    // let dataReceived = data;
+
+    // res.send(dataSet.toString());
+
+
 });
 
+function sendSync(port, src) {
+    return new Promise((resolve, reject) => {
+        port.write(src);
+        parser.on('data', (data) => {console.log(data);
+            resolve(queue.push(data));
+        });
+
+        port.on('error', (err) => {
+            reject(err);
+        });
+
+        // setTimeout(()=>
+        // {
+            
+        // }, 10)
+        
+    });
+}
+
+// router.get('/:zoneId', (req,res) =>
+// {
+//     res.send('xxaabbccddeeffgghhiijj');
+// });
 
 /**
  * Following the Command control order Structure. The zoneId, the command and command input value (req.body) is received. 
@@ -61,6 +115,7 @@ router.post('/:zoneId/:command', (req,res) =>
         const controlOrder = `<${req.params['zoneId']}${req.params['command']}${req.body}\r`;
         console.log(controlOrder);
         processInput(controlOrder);
+        res.send('success');
     }
     else
     {
@@ -92,20 +147,7 @@ function validateCommand(zoneId, command, input)
 
 function processInput(controlOrder)
 {
-    port.write('main screen turn on', function(err) {
-        if (err) {
-          return console.log('Error on write: ', err.message)
-        }
-        console.log('message written')
-      })
-
-      port.on('readable', function () {
-        console.log('Data:', port.read())
-      })
-      
-    //   // Switches the port into "flowing mode"
-    //   const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }))
-    //   parser.on('data', console.log)
+    port.write(controlOrder);
 }
 
 module.exports = router;

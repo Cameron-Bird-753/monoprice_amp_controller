@@ -9,7 +9,7 @@ const controlCommand = {
     "pr":binaryOptions,
     "mu":binaryOptions,
     "dt":binaryOptions,
-    "vo":binaryOptions,
+    "vo":trebleAndBass,
     "tr":trebleAndBass,
     "bs":trebleAndBass,
     "ch":channels,
