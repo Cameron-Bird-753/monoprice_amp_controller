@@ -9,25 +9,32 @@
 
 const express = require('express');
 const router = express.Router();
-const controlActions = require('../models/Monoprice.js');
-const { SerialPort } = require('serialport');
-const { ReadlineParser } = require('@serialport/parser-readline')
+const monoprice = require('../models/Monoprice.js');
+
+const connection = require('../util/portconfig');
+    /**
+     * 
+     * [
+    "?11",
+    "#>1100010000111109100601\r"
+     
+    [
+    "?10",
+    "#>1100010000111109100601\r",
+    "#>1200000000170405100601\r",
+    "#>1300000000280710100601\r",
+    "#>1400000000200707100601\r",
+    "#>1500000000200707100100\r",
+    "#>1600000000250707100500\r"
+
+    ]
+    */
+const mockData = [
+    "?11",
+    "#>1100010000111109100601\r"];
 
 
 
-
-//Serial Ports 
-const port = new SerialPort({
-    path: 'COM3',
-    baudRate: 9600,
-    // parser: new ReadlineParser('\n')
-  });
-const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
-// //Callbacks
-// const queue = [];
-// parser.on('data', readSerialData);
-
-const queue = [];
 
 
 
@@ -51,72 +58,56 @@ const queue = [];
  */
 router.get('/:zoneId', (req,res) =>
 {
-    /**
-     * [
-    "?11",
-    "#>1100010000111109100601\r"
-     
-    
-    [
-    "?10",
-    "#>1100010000111109100601\r",
-    "#>1200000000170405100601\r",
-    "#>1300000000280710100601\r",
-    "#>1400000000200707100601\r",
-    "#>1500000000200707100100\r",
-    "#>1600000000250707100500\r"
-]
-    
-    
-    */
 
-    sendSync(port, '?10\r').then((data) => { //HARD CODED QUERY
-        setTimeout(()=>{ 
+    const processedData = processData(mockData); //Should pass the queue I think
+    console.log(processedData)
+    res.json(processedData);
+
+    sendSync(connection.port, '?10\r').then((data) => { //HARD CODED QUERY
+        setTimeout(()=>
+        { 
             console.log(queue.length);
-            res.json(queue);},200);
+            const processedData = processData(mockData); //Should pass the queue I think
+            res.json(processedData);
+
+        },200);
         // console.log(data);
-       
     });
-
-
-
-
-
-
-
-    // port.write('?11\r','ascii');
-    // res.send('xxaabbccddeeffgghhiijj');
-    
-    // let dataReceived = data;
-
-    // res.send(dataSet.toString());
 
 
 });
 
-function sendSync(port, src) {
+
+function processData(data)
+{
+
+    let rawData = data[1].replace(/\D/g, ''); 
+    let zoneInfo = monoprice.singleZoneInfo;
+    console.log(zoneInfo);
+    console.log(rawData.length)
+    for(let i =2, j=0; i<=rawData.length; i+=2,j+=1)
+    {
+        var tempKey = Object.keys(zoneInfo)[j];
+        zoneInfo[tempKey] = rawData.slice(i-2,i);
+    }
+    return zoneInfo;
+}
+
+
+function sendSync(port, src) 
+{
     return new Promise((resolve, reject) => {
-        port.write(src);
-        parser.on('data', (data) => {console.log(data);
+        connection.port.write(src);
+        connection.parser.on('data', (data) => {console.log(data);
             resolve(queue.push(data));
         });
 
-        port.on('error', (err) => {
+        connection.port.on('error', (err) => {
             reject(err);
         });
-
-        // setTimeout(()=>
-        // {
-            
-        // }, 10)
-        
     });
 }
 
-// router.get('/:zoneId', (req,res) =>
-// {
-//     res.send('xxaabbccddeeffgghhiijj');
-// });
 
 /**
  * Following the Command control order Structure. The zoneId, the command and command input value (req.body) is received. 
@@ -124,7 +115,7 @@ function sendSync(port, src) {
  */
 router.post('/:zoneId/:command', (req,res) =>
 {
-    const validInput = validateCommand(req.params['zoneId'], req.params['command'], req.body);
+    const validInput = validateZoneCommand(req.params['zoneId'], req.params['command'], req.body);
     console.log(validInput);
     if(validInput)
     {
@@ -139,18 +130,38 @@ router.post('/:zoneId/:command', (req,res) =>
     }
 });
 
+router.post('/source/:sourchId', (req,res) =>
+{
+    console.log('source');
+    const validInput = validateSourceCommand(req.params['sourchId'], req.body);
+    if(validInput)
+    {
+        let newSourceName = req.body.padStart(8);
+        const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
+        processInput(controlOrder);
+        res.send('success');
+    }
+    else
+    {
+        res.send('invalid')
+    }
+});
+
+
+
 /* 
     Validate zoneId, the command and command input value against controlActions Object. 
 */
-function validateCommand(zoneId, command, input)
+function validateZoneCommand(zoneId, command, input)
 {
+
     if(!(zoneId >= 10 && zoneId <= 16)) //validate amp, zone & input as int. 
     {
         return false;
     }
-    if(command in controlActions)
+    if(command in monoprice.controlActions)
     {
-        if(!(input >= controlActions[command][0] && input <= controlActions[command][1])) //validate command's input value. 
+        if(!(input >= monoprice.controlActions[command][0] && input <= monoprice.controlActions[command][1])) //validate command's input value. 
         {
             return false;
         }
@@ -161,9 +172,23 @@ function validateCommand(zoneId, command, input)
     }
 }
 
+function validateSourceCommand(sourceId, sourceName)
+{
+    var ascii = /^[ -~]+$/;
+    if(!(sourceId >= 1 && sourceId <= 6)) //validate amp, zone & input as int. 
+    {
+        return false;
+    }
+    if(sourceName.length > 8 || !ascii.test( sourceName ))
+    {
+        return false;
+    }
+    return true;
+}
+
 function processInput(controlOrder)
 {
-    port.write(controlOrder);
+    connection.port.write(controlOrder);
 }
 
 module.exports = router;

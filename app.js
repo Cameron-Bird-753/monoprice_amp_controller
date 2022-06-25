@@ -24,8 +24,14 @@ app.get('/', (req,res) =>
 //IMPORTED ROUTES
 
 const zoneRoutes = require('./routes/zones');
+const keypadRoutes = require('./routes/keypad');
+const baudRoutes = require('./routes/baud');
+const sourceRoutes = require('./routes/source');
 // app.use(['/zones','/zones/:id','/zones/:id/:control-action'],zoneRoutes);
 app.use('/zones',zoneRoutes);
+app.use('/keypad',keypadRoutes);
+app.use('/baud',baudRoutes);
+app.use('/source',sourceRoutes);
 
 // Port Number
 app.listen(3000);
