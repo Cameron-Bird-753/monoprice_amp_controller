@@ -12,28 +12,22 @@ const router = express.Router();
 const monoprice = require('../models/Monoprice.js');
 
 const connection = require('../util/portconfig');
-    /**
-     * 
-     * [
-    "?11",
-    "#>1100010000111109100601\r"
-     
-    [
-    "?10",
-    "#>1100010000111109100601\r",
-    "#>1200000000170405100601\r",
-    "#>1300000000280710100601\r",
-    "#>1400000000200707100601\r",
-    "#>1500000000200707100100\r",
-    "#>1600000000250707100500\r"
 
-    ]
-    */
-const mockData = [
-    "?11",
-    "#>1100010000111109100601\r"];
+connection.parser.on('data', readSerialData);
+let receivedData = [];
 
-
+function readSerialData(data)
+{
+  console.log('read serial data',data.length)
+  if(data.length === 25)
+  {
+    console.log('pushing');
+    receivedData.push(data);
+  }
+// //   let rawData = data.split('\r');
+//   console.log('raw data', rawData);
+  return data;
+} 
 
 
 
@@ -58,33 +52,67 @@ const mockData = [
  */
 router.get('/:zoneId', (req,res) =>
 {
+    if(!(req.params['zoneId'] >= 10 && req.params['zoneId'] <= 16))
+    {
+        return res.status(400).send('invalid request');
+    }
+    // const processedData = processData(mockData); //Should pass the queue I think
+    // console.log(processedData)
+    // res.json(processedData);
 
-    const processedData = processData(mockData); //Should pass the queue I think
-    console.log(processedData)
-    res.json(processedData);
+    const zoneQuery = `?${req.params['zoneId']}\r`;
+    // sendSync(connection.port, zoneQuery).then((data) => { //HARD CODED QUERY
+    //     setTimeout(()=>
+    //     { 
+    //         if(connection.queue.includes('Command Error.'))
+    //         {
+    //             res.status(400).send('invalid request');
+    //         }
+    //         else
+    //         {
+    //             console.log('reading port',connection.port.read());
+               
+    //             const jsonArr = [];
+    //             // console.log(connection.queue);
 
-    sendSync(connection.port, '?10\r').then((data) => { //HARD CODED QUERY
-        setTimeout(()=>
-        { 
-            console.log(queue.length);
-            const processedData = processData(mockData); //Should pass the queue I think
-            res.json(processedData);
+    //             for (let index = 1; index < connection.queue.length; index++) {
+    //                 let rawData = connection.queue[index];
+    //                 let processedData = processData(rawData, Object.assign({}, zoneInfo = monoprice.singleZoneInfo));
+    //                 jsonArr.push(processedData);
+    //             }
+    //             // let processedData = processData(connection.queue);
+    //             connection.queue = []; //Reset Queue
+    //             connection.newParser();
+    //             res.status(200).json(jsonArr);
+    //         }
+           
 
-        },200);
+    //     },200);
         // console.log(data);
-    });
-
+    // });
+    connection.processInput(zoneQuery);
+    console.log(receivedData);
+    setTimeout(() => 
+    {
+        let arr = [];
+        for (let index = 0; index < receivedData.length; index++) 
+        {
+            arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+            
+        }
+        res.send(arr);
+        receivedData = [];
+    }, 200);
+   
 
 });
 
 
-function processData(data)
+function processData(data, zoneInfo)
 {
 
-    let rawData = data[1].replace(/\D/g, ''); 
-    let zoneInfo = monoprice.singleZoneInfo;
-    console.log(zoneInfo);
-    console.log(rawData.length)
+    let rawData = data.replace(/\D/g, ''); 
+    // let zoneInfo = monoprice.singleZoneInfo;
     for(let i =2, j=0; i<=rawData.length; i+=2,j+=1)
     {
         var tempKey = Object.keys(zoneInfo)[j];
@@ -98,8 +126,10 @@ function sendSync(port, src)
 {
     return new Promise((resolve, reject) => {
         connection.port.write(src);
-        connection.parser.on('data', (data) => {console.log(data);
-            resolve(queue.push(data));
+        connection.parser.on('data', (data) => 
+        {
+
+            resolve(connection.queue.push(data));
         });
 
         connection.port.on('error', (err) => {
@@ -130,24 +160,6 @@ router.post('/:zoneId/:command', (req,res) =>
     }
 });
 
-router.post('/source/:sourchId', (req,res) =>
-{
-    console.log('source');
-    const validInput = validateSourceCommand(req.params['sourchId'], req.body);
-    if(validInput)
-    {
-        let newSourceName = req.body.padStart(8);
-        const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
-        processInput(controlOrder);
-        res.send('success');
-    }
-    else
-    {
-        res.send('invalid')
-    }
-});
-
-
 
 /* 
     Validate zoneId, the command and command input value against controlActions Object. 
@@ -172,19 +184,6 @@ function validateZoneCommand(zoneId, command, input)
     }
 }
 
-function validateSourceCommand(sourceId, sourceName)
-{
-    var ascii = /^[ -~]+$/;
-    if(!(sourceId >= 1 && sourceId <= 6)) //validate amp, zone & input as int. 
-    {
-        return false;
-    }
-    if(sourceName.length > 8 || !ascii.test( sourceName ))
-    {
-        return false;
-    }
-    return true;
-}
 
 function processInput(controlOrder)
 {

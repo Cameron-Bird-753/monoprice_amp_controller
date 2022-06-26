@@ -1,22 +1,31 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
-
+let userDefinedBaud = null;
 //Serial Ports 
-const port = new SerialPort({
-    path: 'COM7',
-    baudRate: 9600,
+let port = new SerialPort({
+    path: 'COM3',
+    baudRate: 9600 || userDefinedBaud,
     // parser: new ReadlineParser('\n')
   });
-const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
-// //Callbacks
-// const queue = [];
-// parser.on('data', readSerialData);
+let parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-const queue = [];
+
+
+
+let queue = [];
 
 function processInput(controlOrder)
 {
-    connection.port.write(controlOrder);
+    port.write(controlOrder);
 }
 
-module.exports = {port, parser, queue, processInput };
+
+
+function resetQueue() 
+{
+  this.queue = [];
+  
+}
+
+
+module.exports = {port, parser, queue, processInput, resetQueue };

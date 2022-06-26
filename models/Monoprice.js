@@ -1,6 +1,7 @@
 const binaryOptions = [0,1];
 const trebleAndBass = [0,14];
 const channels = [1,6];
+const volume = [0,38];
 
 
 
@@ -9,14 +10,14 @@ const controlActions = {
     "pr":binaryOptions,
     "mu":binaryOptions,
     "dt":binaryOptions,
-    "vo":trebleAndBass,
+    "vo":volume,
     "tr":trebleAndBass,
     "bs":trebleAndBass,
     "ch":channels,
 }
 
 
-let singleZoneInfo = {
+const singleZoneInfo = {
     "zone":"",
     "pa":"",
     "power":"",

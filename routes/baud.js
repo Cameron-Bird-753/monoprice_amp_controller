@@ -5,19 +5,27 @@ const connection = require('../util/portconfig');
 
 router.post('/:baudrate', (req,res) =>
 {
-    let answer = validateInput(req.params['baudrate']);
-    console.log(answer);
-    if(answer)
-    {
-        let newKeypadName = req.body.padStart(8);
-        const controlOrder = `${req.params['keypad']}<${newKeypadName}\r`;
-        // connection.processInput(controlOrder);
-        res.status(200).send(req.params['baudrate'])
-    }
-    else
-    {
-        res.status(400).send(req.params['baudrate'])
-    }
+    // if( validateInput(req.params['baudrate']))
+    // {
+    //     connection.port.close(() =>
+    //     {
+    //         console.log('closed')
+    //         // const command = `<${req.params['baudrate']}\r`;
+    //         connection.reOpenPort(req.params['baudrate']);
+    //         console.log(connection.port.baudRate)
+
+
+    //     });
+        
+    //     // connection.processInput(command);
+    //     // connection.reOpenPort(req.params['baudrate']);
+    //     // console.log(connection.port.baudRate)
+    //     res.send('processed')
+    // }
+    // else
+    // {
+    //     res.status(400).send(req.params['baudrate'])
+    // }
   
 });
 
@@ -26,7 +34,6 @@ function validateInput(baudrate)
     found = false;
     rates.forEach((rate) =>
     {
-        console.log(rate);
         if(rate == baudrate)
         {
             found = true;
@@ -34,5 +41,7 @@ function validateInput(baudrate)
     })
     return found;
 }
+
+
 
 module.exports = router;
