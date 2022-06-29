@@ -1,13 +1,11 @@
 // Import express application
 const express = require('express');
 const bodyParser = require('body-parser');
-
-
+//HEADER OPTIONS
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
-
     next();
 }
 
@@ -18,12 +16,6 @@ app.use(bodyParser.text());
 app.use(bodyParser.json());
 
 
-
-
-
-// SerialPort.list().then(
-//     ports => ports.forEach(port =>console.log(port.path)),
-//     err => console.log('no ports',err));
 
 // DEFAULT ROUTES
 app.get('/', (req,res) =>
@@ -37,7 +29,6 @@ const zoneRoutes = require('./routes/zones');
 const keypadRoutes = require('./routes/keypad');
 const baudRoutes = require('./routes/baud');
 const sourceChannelRoutes = require('./routes/sourceChannels');
-// app.use(['/zones','/zones/:id','/zones/:id/:control-action'],zoneRoutes);
 app.use('/zones',zoneRoutes);
 app.use('/keypad',keypadRoutes);
 app.use('/baud',baudRoutes);

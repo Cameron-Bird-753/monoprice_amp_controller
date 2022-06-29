@@ -12,13 +12,12 @@ const router = express.Router();
 const monoprice = require('../models/Monoprice.js');
 var db = require("../data/doa");
 const connection = require('../util/portconfig');
-
 connection.parser.on('data', readSerialData);
 let receivedData = [];
 
 function readSerialData(data)
 {
-  console.log('read serial data',data.length)
+  console.log('read serial data',data)
   if(data.length === 25)
   {
     console.log('pushing');
@@ -28,65 +27,7 @@ function readSerialData(data)
 } 
 
 
-
-
-/**
- * Query spefic zone, or all zones for specific amp by using 10/20/30. 
- * Query structure -> '?xx"CR"':
- *      xx-> zone, or zones in question (amp number (10,20 or 30) + zone (1-6))
- *      "CR" ->Carrage return
- *  Reponse from amp - >'xxaabbccddeeffgghhiijj'"CR":
- *      xx -> see above
- *      aa -> PA control Status
- *      bb -> Power Control Status 
- *      cc -> Mute Status
- *      dd -> do not disturb Status
- *      ee -> Volume Status    
- *      ff -> Treble Status
- *      gg -> Bass Status 
- *      hh -> Balance Status
- *      ii -> Source Status
- *      jj -> Keypad Status
- */
-
-
-//  router.get('/', (req,res) =>
-//  {
-//      const allZonesAmp1 = 10;
-//      const zoneQuery = `?${allZonesAmp1}\r`;
-//      connection.processInput(zoneQuery);
-//      console.log(receivedData);
-//      setTimeout(() => 
-//      {
-//          let arr = [];
-//          for (let index = 0; index < receivedData.length; index++) 
-//          {
-//              arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
-             
-//          }
-//          returnResults;
-//          function returnResults()
-//          {
-//             const zoneNames = getZoneNames()
-//             .then(function() 
-//             {
-//                 const allZones = addZoneNamesToZone(arr, zoneNames);
-//                 res.status(200).json(allZones)
-//                 res.send(arr);
-//                 receivedData = [];
-//             })
-//          }
-
-//          function getZoneNames()
-//          {
-//             return db.getAllChannels();
-//          }
-
-//      }, 200);
- 
-//  });
-
- router.get('/', async (req,res) =>
+router.get('/', async (req,res) =>
  {
      try
      {
@@ -94,25 +35,25 @@ function readSerialData(data)
         const zoneQuery = `?${allZonesAmp1}\r`;
         connection.processInput(zoneQuery);
         const dbResults = await db.getAllZones();
-        const allResults = await addZoneNamesToZone(arr, dbResults);
+        
         setTimeout(() => 
         {
             let arr = [];
-            for (let index = 0; index < receivedData.length; index++) 
+            for (const element of receivedData) 
             {
-                arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+                arr.push(processData(element, Object.assign({}, monoprice.singleZoneInfo)));
             }
-           
+            const allResults = addZoneNamesToZone(arr, dbResults);
+       
+            receivedData = [];
+            res.status(200).json(allResults)
         }, 200);
-        res.status(200).json(allResults)
+        
      }catch(err)
      {
-         res.status(400).send('Error occured')
+         res.status(400).send(err)
      }
  });
-
-
-
 
 router.get('/:zoneId', (req,res) =>
 {
@@ -126,9 +67,9 @@ router.get('/:zoneId', (req,res) =>
     setTimeout(() => 
     {
         let arr = [];
-        for (let index = 0; index < receivedData.length; index++) 
+        for (const element of receivedData) 
         {
-            arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+            arr.push(processData(element, Object.assign({}, monoprice.singleZoneInfo)));
             
         }
         res.send(arr);
@@ -152,49 +93,21 @@ function processData(data, zoneInfo)
 
 function addZoneNamesToZone(ampZoneInfo, dbZoneInfo)
 {
-    // let ampZoneInfo =  [
-    //     {
-
-    //         "zoneId":"11",
-    //         "paPower":"01",
-    //         "power":"01",
-    //         "mute":"01",
-    //         "doNotDisturb":"00",
-    //         "volume":"32",
-    //         "treble":"13",
-    //         "bass":"10",
-    //         "balance":"14",
-    //         "sourceChannelName":"1",
-    //         "keypadStatus":"01",
-    //         "zoneName":""
-    //     }, 
-    //     {
-    //         "zoneId":"12",
-    //         "paPower":"00",
-    //         "power":"00",
-    //         "mute":"01",
-    //         "doNotDisturb":"00",
-    //         "volume":"20",
-    //         "treble":"09",
-    //         "bass":"05",
-    //         "balance":"14",
-    //         "sourceChannelName":"3",
-    //         "keypadStatus":"01",
-    //         "zoneName":""
-    //     }];
-   
-        ampZoneInfo.forEach((ampZone) =>
+    ampZoneInfo.forEach((ampZone) =>
+    {
+        dbZoneInfo.forEach((dbZone) =>
         {
-            dbZoneInfo.forEach((dbZone) =>
+            if(ampZone.zoneId == dbZone.id)
             {
-                if(ampZone.zoneId == dbZone.id)
-                {
-                    ampZone.zoneName = dbZone.name;
-                }
-            })
-        });
+                ampZone.zoneName = dbZone.name;
+            }
+        })
+    });
     return ampZoneInfo;    
 }
+
+
+
 
 
 /**
@@ -208,13 +121,36 @@ router.post('/:zoneId/:attribute', (req,res) =>
     if(validInput)
     {
         const controlOrder = `<${req.params['zoneId']}${req.params['attribute']}${req.body}\r`;
-        console.log(controlOrder);
+        console.log('command send to amp', controlOrder);
         processInput(controlOrder);
-        res.send('success');
+        res.status(200).send('success');
     }
     else
     {
-        res.send('invalid')
+        res.status(400).send('invalid')
+    }
+});
+
+router.post('/:zoneId/', async (req,res) =>
+{
+    try{
+        const zoneId = req.params['zoneId'];
+        if(!(zoneId >= 10 && zoneId <= 16)) //validate amp, zone & input as int. 
+        {
+            return  res.status(400).send('invalid');
+        }
+        console.log('update name', zoneId, req.body );
+        let zone = 
+        {
+            id: zoneId,
+            name:  req.body,
+        }
+       
+        const result = await db.updateZone(zone);
+        res.status(200).json(result)
+    }catch(err)
+    {
+        res.status(400).send('invalid')
     }
 });
 
@@ -231,14 +167,7 @@ function validateZoneCommand(zoneId, command, input)
     }
     if(command in monoprice.controlActions)
     {
-        if(!(input >= monoprice.controlActions[command][0] && input <= monoprice.controlActions[command][1])) //validate command's input value. 
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return (input >= monoprice.controlActions[command][0] && input <= monoprice.controlActions[command][1]);
     }
 }
 
