@@ -35,7 +35,7 @@ app.get('/', (req,res) =>
 const zoneRoutes = require('./routes/zones');
 const keypadRoutes = require('./routes/keypad');
 const baudRoutes = require('./routes/baud');
-const sourceChannelRoutes = require('./routes/source');
+const sourceChannelRoutes = require('./routes/sourceChannels');
 // app.use(['/zones','/zones/:id','/zones/:id/:control-action'],zoneRoutes);
 app.use('/zones',zoneRoutes);
 app.use('/keypad',keypadRoutes);
