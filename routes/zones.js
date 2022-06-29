@@ -48,6 +48,33 @@ function readSerialData(data)
  *      ii -> Source Status
  *      jj -> Keypad Status
  */
+
+
+ router.get('/', (req,res) =>
+ {
+     const allZonesAmp1 = 10;
+     const zoneQuery = `?${allZonesAmp1}\r`;
+     connection.processInput(zoneQuery);
+     console.log(receivedData);
+     setTimeout(() => 
+     {
+         let arr = [];
+         for (let index = 0; index < receivedData.length; index++) 
+         {
+             arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+             
+         }
+         res.send(arr);
+         receivedData = [];
+     }, 200);
+ 
+ });
+
+
+
+
+
+
 router.get('/:zoneId', (req,res) =>
 {
     if(!(req.params['zoneId'] >= 10 && req.params['zoneId'] <= 16))
