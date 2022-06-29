@@ -106,13 +106,13 @@ function sendSync(port, src)
  * Following the Command control order Structure. The zoneId, the command and command input value (req.body) is received. 
  * All 3 variables are validated against the controlActions Object ./models/Monoprice. 
  */
-router.post('/:zoneId/:command', (req,res) =>
+router.post('/:zoneId/:attribute', (req,res) =>
 {
-    const validInput = validateZoneCommand(req.params['zoneId'], req.params['command'], req.body);
+    const validInput = validateZoneCommand(req.params['zoneId'], req.params['attribute'], req.body);
     console.log(validInput);
     if(validInput)
     {
-        const controlOrder = `<${req.params['zoneId']}${req.params['command']}${req.body}\r`;
+        const controlOrder = `<${req.params['zoneId']}${req.params['attribute']}${req.body}\r`;
         console.log(controlOrder);
         processInput(controlOrder);
         res.send('success');
