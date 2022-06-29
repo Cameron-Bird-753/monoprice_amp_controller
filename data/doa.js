@@ -16,6 +16,17 @@ function getAllChannels()
     return knex("channels").select('*');
 }
 
+function getAllZones()
+{
+    console.log('running get all zones');
+    return knex("zones").select('*');
+}
+
+function updateZone(zone)
+{
+    return knex("zones").where("id", zone.id).update(zone);
+}
 
 
-module.exports = { updateChannel, getAllChannels, getChannel } 
+
+module.exports = { updateChannel, getAllChannels, getChannel, getAllZones, updateZone } 

@@ -10,7 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const monoprice = require('../models/Monoprice.js');
-
+var db = require("../data/doa");
 const connection = require('../util/portconfig');
 
 connection.parser.on('data', readSerialData);
@@ -50,27 +50,66 @@ function readSerialData(data)
  */
 
 
- router.get('/', (req,res) =>
- {
-     const allZonesAmp1 = 10;
-     const zoneQuery = `?${allZonesAmp1}\r`;
-     connection.processInput(zoneQuery);
-     console.log(receivedData);
-     setTimeout(() => 
-     {
-         let arr = [];
-         for (let index = 0; index < receivedData.length; index++) 
-         {
-             arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+//  router.get('/', (req,res) =>
+//  {
+//      const allZonesAmp1 = 10;
+//      const zoneQuery = `?${allZonesAmp1}\r`;
+//      connection.processInput(zoneQuery);
+//      console.log(receivedData);
+//      setTimeout(() => 
+//      {
+//          let arr = [];
+//          for (let index = 0; index < receivedData.length; index++) 
+//          {
+//              arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
              
-         }
-         res.send(arr);
-         receivedData = [];
-     }, 200);
+//          }
+//          returnResults;
+//          function returnResults()
+//          {
+//             const zoneNames = getZoneNames()
+//             .then(function() 
+//             {
+//                 const allZones = addZoneNamesToZone(arr, zoneNames);
+//                 res.status(200).json(allZones)
+//                 res.send(arr);
+//                 receivedData = [];
+//             })
+//          }
+
+//          function getZoneNames()
+//          {
+//             return db.getAllChannels();
+//          }
+
+//      }, 200);
  
+//  });
+
+ router.get('/', async (req,res) =>
+ {
+     try
+     {
+        const allZonesAmp1 = 10;
+        const zoneQuery = `?${allZonesAmp1}\r`;
+        connection.processInput(zoneQuery);
+        const dbResults = await db.getAllZones();
+        const allResults = await addZoneNamesToZone(arr, dbResults);
+        setTimeout(() => 
+        {
+            let arr = [];
+            for (let index = 0; index < receivedData.length; index++) 
+            {
+                arr.push(processData(receivedData[index], Object.assign({}, monoprice.singleZoneInfo)));
+            }
+           
+        }, 200);
+        res.status(200).json(allResults)
+     }catch(err)
+     {
+         res.status(400).send('Error occured')
+     }
  });
-
-
 
 
 
@@ -111,21 +150,50 @@ function processData(data, zoneInfo)
     return zoneInfo;
 }
 
-
-function sendSync(port, src) 
+function addZoneNamesToZone(ampZoneInfo, dbZoneInfo)
 {
-    return new Promise((resolve, reject) => {
-        connection.port.write(src);
-        connection.parser.on('data', (data) => 
+    // let ampZoneInfo =  [
+    //     {
+
+    //         "zoneId":"11",
+    //         "paPower":"01",
+    //         "power":"01",
+    //         "mute":"01",
+    //         "doNotDisturb":"00",
+    //         "volume":"32",
+    //         "treble":"13",
+    //         "bass":"10",
+    //         "balance":"14",
+    //         "sourceChannelName":"1",
+    //         "keypadStatus":"01",
+    //         "zoneName":""
+    //     }, 
+    //     {
+    //         "zoneId":"12",
+    //         "paPower":"00",
+    //         "power":"00",
+    //         "mute":"01",
+    //         "doNotDisturb":"00",
+    //         "volume":"20",
+    //         "treble":"09",
+    //         "bass":"05",
+    //         "balance":"14",
+    //         "sourceChannelName":"3",
+    //         "keypadStatus":"01",
+    //         "zoneName":""
+    //     }];
+   
+        ampZoneInfo.forEach((ampZone) =>
         {
-
-            resolve(connection.queue.push(data));
+            dbZoneInfo.forEach((dbZone) =>
+            {
+                if(ampZone.zoneId == dbZone.id)
+                {
+                    ampZone.zoneName = dbZone.name;
+                }
+            })
         });
-
-        connection.port.on('error', (err) => {
-            reject(err);
-        });
-    });
+    return ampZoneInfo;    
 }
 
 

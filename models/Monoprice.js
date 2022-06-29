@@ -30,6 +30,7 @@ const singleZoneInfo =
     "balance":"",
     "sourceChannelName":"",
     "keypadStatus":"",
+    "zoneName":"",
 };
 
 // const data = [

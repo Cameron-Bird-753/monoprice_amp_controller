@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../util/portconfig');
-var db = require("../data/channels")
+var db = require("../data/doa")
 
 
 router.post('/', async (req,res) =>
