@@ -3,16 +3,11 @@ const { ReadlineParser } = require('@serialport/parser-readline');
 let userDefinedBaud = null;
 //Serial Ports 
 let port = new SerialPort({
-    path: 'COM3',
+    path: 'COM7',
     baudRate: 9600 || userDefinedBaud,
     // parser: new ReadlineParser('\n')
   });
 let parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
-
-
-
-
-let queue = [];
 
 function processInput(controlOrder)
 {
@@ -20,12 +15,4 @@ function processInput(controlOrder)
 }
 
 
-
-function resetQueue() 
-{
-  this.queue = [];
-  
-}
-
-
-module.exports = {port, parser, queue, processInput, resetQueue };
+module.exports = {port, parser, processInput };

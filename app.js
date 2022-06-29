@@ -3,10 +3,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+    next();
+}
+
 
 const app = express(); //execute express and assign to variable
 app.use(bodyParser.text());
-
+app.use(bodyParser.json());
+app.use(allowCrossDomain);
 
 
 
@@ -26,14 +35,14 @@ app.get('/', (req,res) =>
 const zoneRoutes = require('./routes/zones');
 const keypadRoutes = require('./routes/keypad');
 const baudRoutes = require('./routes/baud');
-const sourceRoutes = require('./routes/source');
+const sourceChannelRoutes = require('./routes/source');
 // app.use(['/zones','/zones/:id','/zones/:id/:control-action'],zoneRoutes);
 app.use('/zones',zoneRoutes);
 app.use('/keypad',keypadRoutes);
 app.use('/baud',baudRoutes);
-app.use('/source',sourceRoutes);
+app.use('/channels',sourceChannelRoutes);
 
 // Port Number
-app.listen(3000);
+app.listen(3001);
 
 

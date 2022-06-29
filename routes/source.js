@@ -1,24 +1,61 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../util/portconfig');
+var db = require("../data/channels")
 
 
-router.post('/:sourchId', (req,res) =>
+router.post('/', async (req,res) =>
 {
-    const validInput = validateSourceCommand(req.params['sourchId'], req.body);
-    if(validInput)
+    try
     {
-        let newSourceName = req.body.padStart(8);
-        const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
-        // connection.processInput(controlOrder);
-        console.log(newSourceName.length);
-        res.status(200).send(newSourceName);
-    }
-    else
+        let channel = 
+        {
+            id: req.body.id,
+            name: req.body.name,
+            active : req.body.active
+        }
+    
+        const results = await db.updateChannel(channel);
+        res.status(200).json({results})
+    }catch(err)
     {
-        res.send('invalid')
+        res.status(400).send('Error occured')
     }
 });
+
+router.get('/', async (req,res) =>
+{
+    try
+    {
+        const results = await db.getAllChannels();
+        res.status(200).json({results})
+    }catch(err)
+    {
+        res.status(400).send('Error occured')
+    }
+});
+
+
+
+
+
+
+// router.post('/:sourchId', (req,res) =>
+// {
+//     const validInput = validateSourceCommand(req.params['sourchId'], req.body);
+//     if(validInput)
+//     {
+//         let newSourceName = req.body.padStart(8);
+//         const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
+//         // connection.processInput(controlOrder);
+//         console.log(newSourceName.length);
+//         res.status(200).send(newSourceName);
+//     }
+//     else
+//     {
+//         res.send('invalid')
+//     }
+// });
 
 
 function validateSourceCommand(sourceId, sourceName)

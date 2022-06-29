@@ -17,18 +17,19 @@ const controlActions = {
 }
 
 
-const singleZoneInfo = {
-    "zone":"",
-    "pa":"",
+const singleZoneInfo = 
+{
+    "zoneId":"",
+    "paPower":"",
     "power":"",
     "mute":"",
-    "dnd":"",
-    "vol":"",
-    "treb":"",
+    "doNotDisturb":"",
+    "volume":"",
+    "treble":"",
     "bass":"",
     "balance":"",
-    "source":"",
-    "keypad":"",
+    "sourceChannelName":"",
+    "keypadStatus":"",
 };
 
 // const data = [

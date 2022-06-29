@@ -24,8 +24,6 @@ function readSerialData(data)
     console.log('pushing');
     receivedData.push(data);
   }
-// //   let rawData = data.split('\r');
-//   console.log('raw data', rawData);
   return data;
 } 
 
@@ -56,40 +54,7 @@ router.get('/:zoneId', (req,res) =>
     {
         return res.status(400).send('invalid request');
     }
-    // const processedData = processData(mockData); //Should pass the queue I think
-    // console.log(processedData)
-    // res.json(processedData);
-
     const zoneQuery = `?${req.params['zoneId']}\r`;
-    // sendSync(connection.port, zoneQuery).then((data) => { //HARD CODED QUERY
-    //     setTimeout(()=>
-    //     { 
-    //         if(connection.queue.includes('Command Error.'))
-    //         {
-    //             res.status(400).send('invalid request');
-    //         }
-    //         else
-    //         {
-    //             console.log('reading port',connection.port.read());
-               
-    //             const jsonArr = [];
-    //             // console.log(connection.queue);
-
-    //             for (let index = 1; index < connection.queue.length; index++) {
-    //                 let rawData = connection.queue[index];
-    //                 let processedData = processData(rawData, Object.assign({}, zoneInfo = monoprice.singleZoneInfo));
-    //                 jsonArr.push(processedData);
-    //             }
-    //             // let processedData = processData(connection.queue);
-    //             connection.queue = []; //Reset Queue
-    //             connection.newParser();
-    //             res.status(200).json(jsonArr);
-    //         }
-           
-
-    //     },200);
-        // console.log(data);
-    // });
     connection.processInput(zoneQuery);
     console.log(receivedData);
     setTimeout(() => 
@@ -103,7 +68,6 @@ router.get('/:zoneId', (req,res) =>
         res.send(arr);
         receivedData = [];
     }, 200);
-   
 
 });
 
@@ -112,7 +76,6 @@ function processData(data, zoneInfo)
 {
 
     let rawData = data.replace(/\D/g, ''); 
-    // let zoneInfo = monoprice.singleZoneInfo;
     for(let i =2, j=0; i<=rawData.length; i+=2,j+=1)
     {
         var tempKey = Object.keys(zoneInfo)[j];
