@@ -1,9 +1,11 @@
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 let userDefinedBaud = null;
+const defaultPath = "/dev/ttyUSB0";
+
 //Serial Ports 
 let port = new SerialPort({
-    path: 'COM7',
+    path:  defaultPath || "/dev/ttyUSB0",
     baudRate: 9600 || userDefinedBaud,
   
   });
