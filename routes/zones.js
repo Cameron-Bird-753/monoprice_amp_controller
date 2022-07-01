@@ -27,33 +27,72 @@ function readSerialData(data)
 } 
 
 
-router.get('/', async (req,res) =>
- {
-     try
-     {
-        const allZonesAmp1 = 10;
-        const zoneQuery = `?${allZonesAmp1}\r`;
-        connection.processInput(zoneQuery);
-        const dbResults = await db.getAllZones();
+// router.get('/', async (req,res) =>
+//  {
+//      try
+//      {
+//         const allZonesAmp1 = 10;
+//         const zoneQuery = `?${allZonesAmp1}\r`;
+//         connection.processInput(zoneQuery);
+//         const dbResults = await db.getAllZones();
         
-        setTimeout(() => 
-        {
-            let arr = [];
-            for (const element of receivedData) 
-            {
-                arr.push(processData(element, Object.assign({}, monoprice.singleZoneInfo)));
-            }
-            const allResults = addZoneNamesToZone(arr, dbResults);
+//         setTimeout(() => 
+//         {
+//             let arr = [];
+//             for (const element of receivedData) 
+//             {
+//                 arr.push(processData(element, Object.assign({}, monoprice.singleZoneInfo)));
+//             }
+//             const allResults = addZoneNamesToZone(arr, dbResults);
        
-            receivedData = [];
-            res.status(200).json(allResults)
-        }, 200);
+//             receivedData = [];
+//             res.status(200).json(allResults)
+//         }, 200);
         
-     }catch(err)
-     {
-         res.status(400).send(err)
-     }
- });
+//      }catch(err)
+//      {
+//          res.status(400).send(err)
+//      }
+//  });
+
+router.get('/', (req,res) =>
+{
+    let data = 
+       
+        [
+            {
+                "zoneId":"11",
+                "zoneName":"kitchen",
+                "paPower":"01",
+                "power":"01",
+                "mute":"01",
+                "doNotDisturb":"00",
+                "volume":"32",
+                "treble":"13",
+                "bass":"10",
+                "balance":"14",
+                "sourceChannelName":"1",
+                "keypadStatus":"01"
+            },
+            {
+                "zoneId":"12",
+                "zoneName":"kitchen",
+                "paPower":"01",
+                "power":"01",
+                "mute":"01",
+                "doNotDisturb":"00",
+                "volume":"32",
+                "treble":"13",
+                "bass":"10",
+                "balance":"14",
+                "sourceChannelName":"1",
+                "keypadStatus":"01"
+            }
+        ];
+        console.log(data);
+    res.send(data);
+
+})
 
 router.get('/:zoneId', (req,res) =>
 {

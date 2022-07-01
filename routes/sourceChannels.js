@@ -26,17 +26,42 @@ router.post('/', async (req,res) =>
     }
 });
 
-router.get('/', async (req,res) =>
+// router.get('/', async (req,res) =>
+// {
+//     try
+//     {
+//         const results = await db.getAllChannels();
+//         res.status(200).json(results)
+//     }catch(err)
+//     {
+//         res.status(400).send('Error occured')
+//     }
+// });
+
+router.get('/', (req,res) =>
 {
-    try
-    {
-        const results = await db.getAllChannels();
-        res.status(200).json(results)
-    }catch(err)
-    {
-        res.status(400).send('Error occured')
-    }
+    let data = [
+       
+        {
+
+            "id":1,
+            "name":"TV",
+            "active":1
+
+        }, 
+        {
+
+            "id":2,
+            "name":"Amazon",
+            "active":1
+
+        }
+       
+    ];
+
+    res.send(data);
 });
+
 
 
 
