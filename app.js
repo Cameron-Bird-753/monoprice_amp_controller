@@ -1,64 +1,51 @@
-// Import express application
+// Imports & Constants
 const express = require('express');
 const bodyParser = require('body-parser');
 const https =require('https') ;
 const path =require('path');
 const fs =require('fs');
-
-
-
-
-
+require('dotenv').config();
+const SERVER_PORT = process.env.SERVER_PORT || 443;
+const app = express();
+app.use(allowCrossDomain);
+app.use(bodyParser.text());
+app.use(bodyParser.json());
 
 //HEADER OPTIONS
 var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', '*'); 
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
 }
 
 
-const app = express(); //execute express and assign to variable
-app.use(allowCrossDomain);
-app.use(bodyParser.text());
-app.use(bodyParser.json());
-
-
-
 // DEFAULT ROUTES
 app.get('/', (req,res) =>
 {
-    res.status(200).send('On Home Page');
+    res.status(200).send('Server Home Page');
 });
 
 //IMPORTED ROUTES
 
 const zoneRoutes = require('./routes/zones');
-const keypadRoutes = require('./routes/keypad');
-const baudRoutes = require('./routes/baud');
 const sourceChannelRoutes = require('./routes/sourceChannels');
 app.use('/zones',zoneRoutes);
-app.use('/keypad',keypadRoutes);
-app.use('/baud',baudRoutes);
 app.use('/channels',sourceChannelRoutes);
 
-
-
-
-const keyFile = path.join(__dirname, 'cert', 'server.key');
-const certFile = path.join(__dirname, 'cert', 'server.crt');
+//ESTABLISH SERVER
 
 const sslServer = https
   .createServer(
     {
-      key: fs.readFileSync(keyFile),
-      cert: fs.readFileSync(certFile),
+      key: process.env.KEY,
+      cert: process.env.CERT,
+      ca: process.env.CA,
     },
     app
   )
-  .listen(3001, () => {
+  .listen(process.env.SERVER_PORT, () => {
     console.log(
-      'SSL SERVER'
+      'SERVER IS RUNNING'
     );
   });

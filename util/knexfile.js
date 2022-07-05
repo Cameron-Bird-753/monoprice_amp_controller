@@ -7,7 +7,8 @@ const connectedKnex = knex(
     {
       filename:"./data/audio.db3"
     
-    }
+    },
+    useNullAsDefault: true
   }
 );
 
