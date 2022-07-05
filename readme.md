@@ -14,9 +14,8 @@ API
 ZONES
 GET /zones - Queries all zones for the main amp,
 
-Response
+Response JSON
 
-JSON
     {
         "zoneId":"",
         "paPower":"",
@@ -31,6 +30,7 @@ JSON
         "keypadStatus":"",
         "zoneName":"",
     }
+    
 
 POST /zones/:zoneId/:controlAction
 
