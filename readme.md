@@ -76,16 +76,21 @@ Screenshots from the frontend applications
 Audio Input Channels and Zones can be given alternate names, with default names set. 
 
 Landing Page - Show all zones 
+
 ![Alt text](./images/App_Landing_Page.png?raw=true 'Landing Page')
 
 Accordions can be expanded to adjust the zone
+
 ![Alt text](./images/app_zone_expanded.png?raw=true 'Drop -down')
 
 Menu to select either the zones or the Audio Input Channels
+
 ![Alt text](./images/menu_selection.png?raw=true 'Menu')
 
 Manage Audio Input Channel 
+
 ![Alt text](./images/audio_inputs.png?raw=true 'Audio Channels')
 
 Dark Mode
+
 ![Alt text](./images/dark_theme.PNG?raw=true 'Dark Mode')
