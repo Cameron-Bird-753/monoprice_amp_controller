@@ -26,64 +26,22 @@ router.post('/', async (req,res) =>
     }
 });
 
-// router.get('/', async (req,res) =>
-// {
-//     try
-//     {
-//         const results = await db.getAllChannels();
-//         res.status(200).json(results)
-//     }catch(err)
-//     {
-//         res.status(400).send('Error occured')
-//     }
-// });
-
-router.get('/', (req,res) =>
+router.post('/:sourchId', (req,res) =>
 {
-    let data = [
-       
-        {
-
-            "id":1,
-            "name":"TV",
-            "active":1
-
-        }, 
-        {
-
-            "id":2,
-            "name":"Amazon",
-            "active":1
-
-        }
-       
-    ];
-
-    res.send(data);
+    const validInput = validateSourceCommand(req.params['sourchId'], req.body);
+    if(validInput)
+    {
+        let newSourceName = req.body.padStart(8);
+        const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
+        // connection.processInput(controlOrder);
+        console.log(newSourceName.length);
+        res.status(200).send(newSourceName);
+    }
+    else
+    {
+        res.send('invalid')
+    }
 });
-
-
-
-
-
-
-
-// router.post('/:sourchId', (req,res) =>
-// {
-//     const validInput = validateSourceCommand(req.params['sourchId'], req.body);
-//     if(validInput)
-//     {
-//         let newSourceName = req.body.padStart(8);
-//         const controlOrder = `${req.params['sourchId']}<${newSourceName}\r`;
-//         // connection.processInput(controlOrder);
-//         console.log(newSourceName.length);
-//         res.status(200).send(newSourceName);
-//     }
-//     else
-//     {
-//         res.send('invalid')
-//     }
-// });
 
 
 function validateSourceCommand(sourceId, sourceName)
