@@ -2,7 +2,9 @@ Overview
 This webserver allows for serial communication with the Monoprice 6 Multizone amplifier. Currently the setup allows for only 1 main amplifier, but up to 3 amplifier can be daisy chained.
 
 Additional Information
-In order for the server to work the following is required: \* Usb to Serial Cable ![Alt text](./images/RS232.PNG?raw=true 'Rs232')
+In order for the server to work the following is required: \* Usb to Serial Cable 
+![Alt text](./images/RS232.PNG?raw=true 'Rs232')
+
 SBC - Ex Raspberry PI
 \*\*If you plan on using the Android application, HTTPS will be required which will require a self signed SSL certificate.
 
@@ -14,7 +16,6 @@ GET /zones - Queries all zones for the main amp,
 
 Response -> Array of zones
 JSON
-[
     {
         "zoneId":"",
         "paPower":"",
@@ -29,7 +30,6 @@ JSON
         "keypadStatus":"",
         "zoneName":"",
     }
-]
 
 POST /zones/:zoneId/:controlAction
 
@@ -50,24 +50,18 @@ GET /CHANNELS - Queries all Channels
 
 Response -> Array of Audio Channel Information
 JSON
-[
-    {
-        id: channelId
-        name: ChannelName
-        active : 1/0
-    },
-    {
-        id: channelId
-        name: ChannelName
-        active : 1/0
-    }
-]
+
+{
+    id: channelId
+    name: ChannelName
+    active : 1/0
+}
 
 POST /channels/:channelId - Update selected Channel
 Body - Channel JSON
 
     {
-    id: channelId
-    name: ChannelName
-    active : 1/0
+        id: channelId
+        name: ChannelName
+        active : 1/0
     }
