@@ -14,7 +14,8 @@ API
 ZONES
 GET /zones - Queries all zones for the main amp,
 
-Response -> Array of zones
+Response
+
 JSON
     {
         "zoneId":"",
@@ -51,11 +52,11 @@ GET /CHANNELS - Queries all Channels
 Response -> Array of Audio Channel Information
 JSON
 
-{
-    id: channelId
-    name: ChannelName
-    active : 1/0
-}
+    {
+        id: channelId
+        name: ChannelName
+        active : 1/0
+    }
 
 POST /channels/:channelId - Update selected Channel
 Body - Channel JSON
