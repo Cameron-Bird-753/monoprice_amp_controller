@@ -30,18 +30,22 @@ Response JSON
         "keypadStatus":"",
         "zoneName":"",
     }
-    
+
 
 POST /zones/:zoneId/:controlAction
 
 Control actions include:
-"pr", Zone Power Input 00/01
-"mu", Mute Option Input 00/01
-"dt", Do not disturb Input 00/01
-"vo", Volume Input 00-38
-"tr", Treble Input 00-20  
-"bs", Bass Input 00-20  
-"ch", Source Channel Input 00-06
+{
+    "pr", Zone Power Input 00/01
+    "mu", Mute Option Input 00/01
+    "dt", Do not disturb Input 00/01
+    "vo", Volume Input 00-38
+    "tr", Treble Input 00-20  
+    "bs", Bass Input 00-20  
+    "ch", Source Channel Input 00-06
+}
+
+
 
 Body contains the Input value as Text
 Response -> Http Status 200 for success, or 400 for Invalid Request
@@ -66,3 +70,22 @@ Body - Channel JSON
         name: ChannelName
         active : 1/0
     }
+
+
+Screenshots from the frontend applications 
+Audio Input Channels and Zones can be given alternate names, with default names set. 
+
+Landing Page - Show all zones 
+![Alt text](./images/App_Landing_Page.png?raw=true 'Landing Page')
+
+Accordions can be expanded to adjust the zone
+![Alt text](./images/app_zone_expanded.png?raw=true 'Drop -down')
+
+Menu to select either the zones or the Audio Input Channels
+![Alt text](./images/menu_selection.png?raw=true 'Menu')
+
+Manage Audio Input Channel 
+![Alt text](./images/audio_inputs.png?raw=true 'Audio Channels')
+
+Dark Mode
+![Alt text](./images/dark_theme.PNG?raw=true 'Dark Mode')
