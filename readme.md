@@ -1,5 +1,5 @@
 # Overview
-This webserver allows for serial communication with the Monoprice 6 Multizone amplifier. Currently the setup allows for only 1 main amplifier, but up to 3 amplifier can be daisy chained.
+This webserver allows for serial communication with the Monoprice 6 Multizone amplifier. Currently the setup allows for only 1 main amplifier, but can be expanded up to 3 amplifiers as they can be daisy chained.
 
 ## Additional Information
 - In order for the server to work the following is required: \* Usb to Serial Cable 
